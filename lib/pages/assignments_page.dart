@@ -1,21 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
-import '../widgets/calendar/week_view.dart';
+import '../widgets/assignments/assignment_list.dart';
+import '../widgets/assignments/assignment_form.dart';
 
-class CalendarPage extends StatelessWidget {
-  const CalendarPage({super.key});
+class AssignmentsPage extends StatelessWidget {
+  const AssignmentsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<AppProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Calendar')),
+      appBar: AppBar(title: const Text('Assignments')),
       drawer: _AppDrawer(),
       body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: WeekView(assignments: provider.state.assignments),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            AssignmentForm(
+              subjects: provider.state.subjects,
+              onSave: (assignment) async {
+                await provider.addAssignment(assignment);
+              },
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: AssignmentList(
+                assignments: provider.state.assignments,
+                onToggleComplete: (id) => provider.toggleAssignmentComplete(id),
+                onDelete: (id) => provider.deleteAssignment(id),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
