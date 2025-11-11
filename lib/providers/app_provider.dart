@@ -45,15 +45,22 @@ class AppProvider with ChangeNotifier {
 
   Future<void> save() async {
     if (firebaseService != null) {
-      // save subjects
-      for (final s in _state.subjects) {
-        await firebaseService!.addOrUpdateSubject(s);
+      try {
+        // save subjects
+        for (final s in _state.subjects) {
+          await firebaseService!.addOrUpdateSubject(s);
+        }
+        // save assignments
+        for (final a in _state.assignments) {
+          await firebaseService!.addOrUpdateAssignment(a);
+        }
+        await firebaseService!.saveSettings(_state.settings);
+      } catch (e, st) {
+        // Log errors and stacktrace to help diagnose permission/auth/network issues
+        print('AppProvider.save() failed: $e');
+        print(st);
+        rethrow;
       }
-      // save assignments
-      for (final a in _state.assignments) {
-        await firebaseService!.addOrUpdateAssignment(a);
-      }
-      await firebaseService!.saveSettings(_state.settings);
     } else {
       await storageService.saveState(_state);
     }

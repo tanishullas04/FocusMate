@@ -53,9 +53,16 @@ class AuthWrapper extends StatelessWidget {
         }
         
         // If user is logged in, show dashboard
-        if (snapshot.hasData) {
-          return const DashboardPage();
-        }
+          if (snapshot.hasData) {
+            // Ensure provider reloads state from Firebase when auth becomes available
+            // so that user-specific Firestore data (users/{uid}/...) is fetched.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final provider = Provider.of<AppProvider>(context, listen: false);
+              provider.load();
+            });
+
+            return const DashboardPage();
+          }
         
         // Otherwise show login page
         return const LoginPage();
