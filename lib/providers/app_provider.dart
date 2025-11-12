@@ -25,7 +25,9 @@ class AppProvider with ChangeNotifier {
         final subjects = await firebaseService!.getSubjects();
         final assignments = await firebaseService!.getAssignments();
         final settings = await firebaseService!.getSettings() ?? _state.settings;
-        _state = AppState(subjects: subjects, assignments: assignments, settings: settings);
+        // Filter out any debug/default placeholder subjects that may be present
+        final filteredSubjects = subjects.where((s) => !_isDebugOrPlaceholderSubject(s)).toList();
+        _state = AppState(subjects: filteredSubjects, assignments: assignments, settings: settings);
         notifyListeners();
         return;
       } catch (e) {
@@ -39,8 +41,19 @@ class AppProvider with ChangeNotifier {
     }
 
     // local fallback
-    _state = await storageService.loadState();
+    final loaded = await storageService.loadState();
+    // Remove any debug/default placeholders from local state as well
+    loaded.subjects = loaded.subjects.where((s) => !_isDebugOrPlaceholderSubject(s)).toList();
+    _state = loaded;
     notifyListeners();
+  }
+
+  bool _isDebugOrPlaceholderSubject(Subject s) {
+    final n = s.name.trim().toLowerCase();
+    if (n.isEmpty) return true;
+    if (n == 'default' || n == 'debug') return true;
+    if (n.contains('debug')) return true;
+    return false;
   }
 
   Future<void> save() async {
@@ -85,7 +98,18 @@ class AppProvider with ChangeNotifier {
   Future<void> deleteSubject(String id) async {
     _state.subjects.removeWhere((s) => s.id == id);
     notifyListeners(); // Notify immediately
-    await save();
+    // If using Firebase, delete from backend; otherwise persist locally
+    if (firebaseService != null) {
+      try {
+        await firebaseService!.deleteSubject(id);
+      } catch (e) {
+        // If firebase delete fails, fallback to saving local state
+        print('deleteSubject failed (firebase): $e');
+        await save();
+      }
+    } else {
+      await save();
+    }
   }
 
   // Assignment operations
@@ -107,7 +131,18 @@ class AppProvider with ChangeNotifier {
   Future<void> deleteAssignment(String id) async {
     _state.assignments.removeWhere((a) => a.id == id);
     notifyListeners(); // Notify immediately
-    await save();
+    // If using Firebase, delete from backend; otherwise persist locally
+    if (firebaseService != null) {
+      try {
+        await firebaseService!.deleteAssignment(id);
+      } catch (e) {
+        // If firebase delete fails, fallback to saving local state
+        print('deleteAssignment failed (firebase): $e');
+        await save();
+      }
+    } else {
+      await save();
+    }
   }
 
   Future<void> toggleAssignmentComplete(String id) async {
