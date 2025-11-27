@@ -83,7 +83,10 @@ pipeline {
         
         stage('Push to Registry') {
             when {
-                branch 'main'
+                anyOf {
+                    branch 'main'
+                    branch '*/main'
+                }
             }
             steps {
                 script {
