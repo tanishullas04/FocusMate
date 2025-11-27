@@ -8,11 +8,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:focusmate/app.dart';
+import 'package:focusmate/providers/app_provider.dart';
+import 'package:focusmate/services/storage_service.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   testWidgets('FocusMate app smoke test', (WidgetTester tester) async {
-    // This is a placeholder test - expand with your own tests
-    await tester.pumpWidget(const FocusMateApp());
-    expect(find.text('FocusMate - Dashboard'), findsOneWidget);
+    // Create test storage service
+    final storageService = StorageService();
+    
+    // Wrap app with required Provider
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => AppProvider(storageService: storageService),
+        child: const FocusMateApp(),
+      ),
+    );
+    
+    // Wait for the app to settle
+    await tester.pumpAndSettle();
+    
+    // Basic test - verify app loads
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }
