@@ -81,37 +81,16 @@ pipeline {
             }
         }
         
-        stage('Push to Registry') {
+        stage('Deploy Locally') {
             steps {
                 script {
-                    echo 'Pushing to Docker registry...'
-                    withCredentials([usernamePassword(credentialsId: 'docker-registry-credentials', 
-                                                     usernameVariable: 'DOCKER_USER', 
-                                                     passwordVariable: 'DOCKER_PASS')]) {
-                        sh """
-                            echo \$DOCKER_PASS | docker login -u ${DOCKER_REGISTRY} --password-stdin
-                            docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                            docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest
-                            docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                            docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest
-                        """
-                    }
-                }
-            }
-        }
-        
-        stage('Deploy') {
-            when {
-                branch 'main'
-            }
-            steps {
-                script {
-                    echo 'Deploying application...'
+                    echo 'Deploying application locally...'
                     sh """
                         docker stop ${DOCKER_IMAGE} || true
                         docker rm ${DOCKER_IMAGE} || true
-                        docker run -d --name ${DOCKER_IMAGE} -p 8080:80 ${DOCKER_IMAGE}:latest
+                        docker run -d --name ${DOCKER_IMAGE} -p 3000:80 ${DOCKER_IMAGE}:latest
                     """
+                    echo 'Application deployed at http://localhost:3000'
                 }
             }
         }
