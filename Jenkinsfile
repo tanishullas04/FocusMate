@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'focusmate-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
-        DOCKER_REGISTRY = 'your-registry' // Update with your Docker registry
+        DOCKER_REGISTRY = 'tanishullas04' // Your Docker Hub username
         FLUTTER_VERSION = '3.24.0'
     }
     
