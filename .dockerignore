@@ -1,0 +1,47 @@
+# Build outputs
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+README_SETUP.md
+*.md
+
+# Tests
+test/
+coverage/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Platform specific (keep only web for this build)
+android/
+ios/
+linux/
+macos/
+windows/

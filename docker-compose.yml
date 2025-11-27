@@ -1,0 +1,17 @@
+services:
+  focusmate-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: focusmate-app
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - focusmate-network
+
+networks:
+  focusmate-network:
+    driver: bridge
