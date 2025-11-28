@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: focusmate-app
+  labels:
+    app: focusmate
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: focusmate
+  template:
+    metadata:
+      labels:
+        app: focusmate
+    spec:
+      containers:
+      - name: focusmate-app
+        image: 2260455/focusmate-app:latest
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
